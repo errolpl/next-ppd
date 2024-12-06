@@ -10,23 +10,24 @@ type Book = {
 }
 
 export default function SupabaseTest() {
-	const [data, setData] = useState<Book[] | null>(null) // Use Book[] for array of rows
+	const [data, setData] = useState<Book[] | null>(null) // Use Book[] for rows
 	const [error, setError] = useState<string | null>(null)
 
 	useEffect(() => {
 		const fetchData = async () => {
 			try {
-				// Query the "books" table
-				const { data, error } = await supabase
-					.from<Book>("books") // Specify row type
-					.select("*")
+				// Query the "books" table with proper typing
+				const { data: books, error } = await supabase
+					.from("books") // Table name as string
+					.select("*") // Select all fields
+					.returns<Book[]>() // Explicitly enforce the result type
 
 				if (error) throw error
 
-				// Ensure the data is properly typed
-				setData(data ?? [])
+				// Update state with fetched data
+				setData(books ?? []) // Ensure `data` is never null
 			} catch (err) {
-				setError((err as Error).message) // Narrow the error type to Error
+				setError((err as Error).message) // Properly type the error
 			}
 		}
 
